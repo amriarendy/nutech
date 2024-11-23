@@ -1,9 +1,10 @@
-import Transaction from "../models/TransactionModel.js";
-import Balance from "../models/BalanceModel.js";
 import jwt from "jsonwebtoken";
 import { DateTime } from "../utils/libs/TimeFormat.js";
 import generateNumber from "../utils/libs/GenerateNumber.js";
 import Service from "../models/ServiceModel.js";
+import Transaction from "../models/TransactionModel.js";
+import Balance from "../models/BalanceModel.js";
+import User from "../models/UserModel.js";
 
 export const balance = async (req, res) => {
   const authHeader = req.headers["authorization"];
@@ -127,6 +128,7 @@ export const transaction = async (req, res) => {
         message: "Service not found",
       });
     }
+
     const getBalance = await Balance.findOne({ where: { user_id: email } });
     if (!getBalance) {
       return res.status(404).json({
@@ -135,14 +137,16 @@ export const transaction = async (req, res) => {
         message: "Balance not found",
       });
     }
+
     const servicePrice = getService.service_tarif;
     if (getBalance.balance < servicePrice) {
       return res.status(400).json({
         code: 400,
         status: false,
-        message: "Saldo Anda tidak cukup",
+        message: "Your balance is not enough",
       });
     }
+
     const transactionData = await Transaction.create({
       invoice_number: `INV${generateNumber(1, 100)}`,
       service_code: service_code,
@@ -152,9 +156,15 @@ export const transaction = async (req, res) => {
       dateTransaction: DateTime(),
       balance_id: getBalance.id,
     });
-    console.log(transactionData);
 
-    res.status(200).json({
+    const newBalance = (getBalance.balance || 0) - parseFloat(servicePrice);
+
+    await Balance.update(
+      { balance: newBalance },
+      { where: { user_id: email } }
+    );
+
+    res.status(201).json({
       code: 201,
       status: true,
       message: "Success",
@@ -164,7 +174,7 @@ export const transaction = async (req, res) => {
         service_name: transactionData.service_name,
         transaction_type: transactionData.transaction_type,
         total_amount: transactionData.total_amount,
-        created_on: transactionData.dateTransaction,
+        created_on: DateTime(),
       },
     });
   } catch (error) {
@@ -177,5 +187,62 @@ export const transaction = async (req, res) => {
 };
 
 export const history = async (req, res) => {
-  //
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+  try {
+    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    const { email } = decoded;
+
+    const user = await User.findOne({
+      where: { email: email },
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        status: 404,
+        message: "User not found",
+        data: [],
+      });
+    }
+
+    const getBalanceId = await Balance.findOne({
+      where: { user_id: email },
+    });
+
+    const transactions = await Transaction.findAll({
+      where: { balance_id: getBalanceId.id },
+      order: [["created_on", "DESC"]],
+    });
+
+    if (transactions.length === 0) {
+      return res.status(404).json({
+        status: 404,
+        message: "No transactions found",
+        data: [],
+      });
+    }
+
+    const transactionData = transactions.map((transaction) => ({
+      invoice_number: transaction.invoice_number,
+      transaction_type: transaction.transaction_type,
+      total_amount: transaction.total_amount,
+      created_on: transaction.created_on,
+    }));
+
+    res.status(200).json({
+      code: 200,
+      status: true,
+      message: "Success",
+      data: {
+        records: transactionData,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      status: 500,
+      message: "Internal Server Error",
+      errors: error.message,
+    });
+  }
 };

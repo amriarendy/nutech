@@ -1,4 +1,5 @@
 import User from "../models/UserModel.js";
+import Balance from "../models/BalanceModel.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
@@ -100,6 +101,10 @@ export const register = async (req, res) => {
       first_name: first_name,
       last_name: last_name,
       profile_image: profile_image,
+    });
+    await Balance.create({
+      blance: null,
+      user_id: email,
     });
     res
       .status(201)
