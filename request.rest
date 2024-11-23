@@ -1,0 +1,68 @@
+### LOGIN
+POST http://localhost:3000/login
+Content-Type: application/json
+
+{
+    "email": "jhon@gmail.com",
+    "password": "jhon@gmail.com"
+}
+
+### LOGOUT
+DELETE http://localhost:3000/logout
+
+### REGISTER ACCOUNT
+POST http://localhost:3000/register
+Content-Type: application/json
+
+{
+    "email": "jhon@gmail.com",
+    "password": "jhon@gmail.com",
+    "first_name": "Jhon",
+    "last_name": "Doe",
+}
+
+### GET TOKEN
+GET http://localhost:3000/token
+
+### GET PROFILE
+GET http://localhost:3000/profile
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImVtYWlsIjoiamhvbkBnbWFpbC5jb20iLCJpYXQiOjE3MzIzNzE2ODEsImV4cCI6MTc1MjM3MTY4MX0.jxblTs0OfeRDW545zUq-kTDpctm8AVcBxOEApgCjZm8
+
+### PUT PROFILE
+PUT http://localhost:3000/profile
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEzLCJlbWFpbCI6InRyZnlkQGdtYWlsLmNvbWUiLCJpYXQiOjE3MzIzMDQ0MjIsImV4cCI6MTczMjUwNDQyMn0.2Cb-WjtcLG4Hw25gbW3dF3MVtQJFdr4LAktL7iZCvJY
+Content-Type: application/json
+
+{
+    "first_name": "Daun Jatuh",
+    "last_name": "Daun Jatuh"
+}
+
+### GET BANNER
+GET http://localhost:3000/banner
+
+### GET SERVICES
+GET http://localhost:3000/services
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEzLCJlbWFpbCI6InRyZnlkQGdtYWlsLmNvbWUiLCJpYXQiOjE3MzIzMDQ0MjIsImV4cCI6MTczMjUwNDQyMn0.2Cb-WjtcLG4Hw25gbW3dF3MVtQJFdr4LAktL7iZCvJY
+
+### GET BALANCE
+GET http://localhost:3000/balance
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEzLCJlbWFpbCI6InRyZnlkQGdtYWlsLmNvbWUiLCJpYXQiOjE3MzIzMDQ0MjIsImV4cCI6MTczMjUwNDQyMn0.2Cb-WjtcLG4Hw25gbW3dF3MVtQJFdr4LAktL7iZCvJY
+
+### POST TOPUP
+POST http://127.0.0.1:3000/topup
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEzLCJlbWFpbCI6InRyZnlkQGdtYWlsLmNvbWUiLCJpYXQiOjE3MzIzMDQ0MjIsImV4cCI6MTczMjUwNDQyMn0.2Cb-WjtcLG4Hw25gbW3dF3MVtQJFdr4LAktL7iZCvJY
+Content-Type: application/json
+
+{
+    "top_up_amount": 1000,
+}
+
+### POST TRANSACTION
+POST http://127.0.0.1:3000/transaction
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEzLCJlbWFpbCI6InRyZnlkQGdtYWlsLmNvbWUiLCJpYXQiOjE3MzIzMDQ0MjIsImV4cCI6MTczMjUwNDQyMn0.2Cb-WjtcLG4Hw25gbW3dF3MVtQJFdr4LAktL7iZCvJY
+Content-Type: application/json
+
+{
+    "service_code": "PULSA",
+}
