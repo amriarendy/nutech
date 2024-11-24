@@ -9,7 +9,7 @@ import {
   Required,
   Unique,
 } from "./Validate.js";
-import Auth from "../../models/UserModel.js";
+import Auth from "../../models/AuthModel.js";
 
 const validateAuth = async (req, res, next) => {
   const fields = ["email", "password"];

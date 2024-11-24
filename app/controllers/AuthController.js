@@ -1,17 +1,18 @@
-import User from "../models/UserModel.js";
-import Balance from "../models/BalanceModel.js";
+import Auth from "../models/AuthModel.js";
+import { insertBalance } from "../models/BalanceModel.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
 export const signIn = async (req, res) => {
   try {
-    const user = await User.findAll({
+    const user = await Auth.findAll({
       where: {
         email: req.body.email,
       },
     });
 
     const match = await bcrypt.compare(req.body.password, user[0].password);
+
     if (!match)
       return res.status(400).json({
         errors: [
@@ -39,7 +40,7 @@ export const signIn = async (req, res) => {
         expiresIn: "1d",
       }
     );
-    await User.update(
+    await Auth.update(
       { tokenRefresh: tokenRefresh },
       {
         where: {
@@ -53,10 +54,11 @@ export const signIn = async (req, res) => {
     });
     res.json({ tokenAccess });
   } catch (error) {
+    console.log("Error: ", error.message);
     res.status(500).json({
       code: 500,
       status: "error",
-      message: "Internal server errors!",
+      message: "Internal Server Error",
     });
   }
 };
@@ -95,17 +97,15 @@ export const register = async (req, res) => {
   const last_name = req.body.last_name;
   const profile_image = "default.jpg";
   try {
-    await User.create({
+    await Auth.create({
       email: email,
       password: password,
       first_name: first_name,
       last_name: last_name,
       profile_image: profile_image,
     });
-    await Balance.create({
-      blance: null,
-      user_id: email,
-    });
+    let balance = null;
+    await insertBalance(balance, email);
     res
       .status(201)
       .json({ code: 201, status: true, message: "Account registered" });

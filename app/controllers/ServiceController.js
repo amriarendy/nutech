@@ -1,8 +1,8 @@
-import Service from "../models/ServiceModel.js";
+import { getAllService } from "../models/ServiceModel.js";
 
 export const getAll = async (req, res) => {
   try {
-    const response = await Service.findAll();
+    const response = await getAllService();
     if (response.length === 0) {
       return res.status(404).json({
         status: 404,

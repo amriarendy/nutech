@@ -1,7 +1,11 @@
 import jwt from "jsonwebtoken";
 import path from "path";
 import fs from "fs";
-import User from "../models/UserModel.js";
+import {
+  getWhereUser,
+  updateImageUser,
+  updateUser,
+} from "../models/UserModel.js";
 
 export const profile = async (req, res) => {
   const authHeader = req.headers["authorization"];
@@ -9,21 +13,18 @@ export const profile = async (req, res) => {
   try {
     const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
     const { email } = decoded;
-    const response = await User.findOne({
-      where: {
-        email: email,
-      },
-    });
+    const response = await getWhereUser(email);
+
     res.status(200).json({
       code: 200,
       status: true,
       message: "Success",
       data: {
-        email: response.email,
-        first_name: response.first_name,
-        last_name: response.last_name,
+        email: response[0].email,
+        first_name: response[0].first_name,
+        last_name: response[0].last_name,
         profile_image: `${req.protocol}://${req.get("host")}/uploads/profile/${
-          response.profile_image
+          response[0].profile_image
         }`,
       },
     });
@@ -45,28 +46,20 @@ export const update = async (req, res) => {
 
   const { first_name, last_name } = req.body;
   try {
-    await User.update(
-      {
-        first_name,
-        last_name,
-      },
-      {
-        where: { email: email },
-      }
-    );
-    const updatedUser = await User.findOne({
-      where: { email },
-    });
+    await updateUser(first_name, last_name, email);
+    const updatedUser = await getWhereUser(email);
+    console.log("updatedUser: ", updatedUser[0]);
+
     res.status(200).json({
       code: 200,
       status: true,
       message: "Success",
       data: {
-        email: updatedUser.email,
-        first_name: updatedUser.first_name,
-        last_name: updatedUser.last_name,
+        email: updatedUser[0].email,
+        first_name: updatedUser[0].first_name,
+        last_name: updatedUser[0].last_name,
         profile_image: `${req.protocol}://${req.get("host")}/uploads/profile/${
-          updatedUser.profile_image
+          updatedUser[0].profile_image
         }`,
       },
     });
@@ -96,7 +89,7 @@ export const uploadImage = async (req, res) => {
     const { email } = decoded;
 
     // Retrieve user based on email
-    const getUser = await User.findOne({ where: { email: email } });
+    const getUser = await getWhereUser(email);
     if (!getUser) {
       return res
         .status(404)
@@ -134,19 +127,18 @@ export const uploadImage = async (req, res) => {
       }
     }
 
-    await User.update({ profile_image: fileName }, { where: { email: email } });
-
-    const updatedUser = await User.findOne({ where: { email } });
+    await updateImageUser(fileName, email);
+    const updatedUser = await getWhereUser(email);
     res.status(200).json({
       code: 200,
       status: true,
       message: "Profile image updated successfully",
       data: {
-        email: updatedUser.email,
-        first_name: updatedUser.first_name,
-        last_name: updatedUser.last_name,
+        email: updatedUser[0].email,
+        first_name: updatedUser[0].first_name,
+        last_name: updatedUser[0].last_name,
         profile_image: `${req.protocol}://${req.get("host")}/uploads/profile/${
-          updatedUser.profile_image
+          updatedUser[0].profile_image
         }`,
       },
     });

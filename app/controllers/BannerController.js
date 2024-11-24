@@ -1,8 +1,8 @@
-import Banner from "../models/BannerModel.js";
+import { getAllBanner } from "../models/BannerModel.js";
 
 export const getAll = async (req, res) => {
   try {
-    const response = await Banner.findAll();
+    const response = await getAllBanner();
     if (response.length === 0) {
       return res.status(404).json({
         status: 404,
@@ -23,7 +23,6 @@ export const getAll = async (req, res) => {
       data: bannerData,
     });
   } catch (error) {
-    console.error(error.message);
     res.status(500).json({
       code: 500,
       status: true,

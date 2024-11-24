@@ -1,22 +1,16 @@
 import { Sequelize } from "sequelize";
 import db from "../config/Mysql.js";
 
-const { DataTypes } = Sequelize;
-
-const Auth = db.define(
-  "banners",
-  {
-    banner_name: DataTypes.STRING,
-    banner_image: DataTypes.STRING,
-    description: DataTypes.STRING,
-  },
-  {
-    freezeTableName: true,
+const getAllBanner = async () => {
+  const query = "SELECT banner_name, banner_image, description FROM banners";
+  try {
+    const result = await db.query(query, {
+      type: Sequelize.QueryTypes.SELECT,
+    });
+    return result;
+  } catch (error) {
+    console.error("Error fetching banners:", error);
   }
-);
+};
 
-export default Auth;
-
-(async () => {
-  await db.sync();
-})();
+export { getAllBanner };
